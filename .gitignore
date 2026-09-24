@@ -1,0 +1,20 @@
+# Secrets: never commit these (this repo is public)
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Vercel
+.vercel
+
+# Logs and OS files
+npm-debug.log*
+.DS_Store
