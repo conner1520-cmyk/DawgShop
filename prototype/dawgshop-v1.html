@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DawgShop v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F0ED; --surface:#FFFFFF; --ink:#1C1B1A; --muted:#6A6661; --line:#E2E0DB;
+  --red:#A3122A; --red-soft:#F7E3E6; --hedge:#2D5C3C; --hedge-soft:#E2EDE5; --focus:#1D5FD1;
+  --t0:#F0DCDC; --t1:#DCE8DF; --t2:#E0E3EE; --t3:#F1E7CC; --t4:#E7DEEE; --t5:#D9E9EC;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121110; --surface:#1C1B19; --ink:#F2F0EC; --muted:#A5A099; --line:#33312D;
+    --red:#E4566A; --red-soft:#3A1A20; --hedge:#86C79C; --hedge-soft:#1C3024; --focus:#7EA8FF;
+    --t0:#3A2626; --t1:#22332A; --t2:#272B3A; --t3:#3A3220; --t4:#30283A; --t5:#21343A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121110; --surface:#1C1B19; --ink:#F2F0EC; --muted:#A5A099; --line:#33312D;
+  --red:#E4566A; --red-soft:#3A1A20; --hedge:#86C79C; --hedge-soft:#1C3024; --focus:#7EA8FF;
+  --t0:#3A2626; --t1:#22332A; --t2:#272B3A; --t3:#3A3220; --t4:#30283A; --t5:#21343A;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font:400 15px/1.5 'Public Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+#app{max-width:440px;margin:0 auto;min-height:100vh;background:var(--surface);position:relative;padding-bottom:88px}
+#app.nopad{padding-bottom:84px}
+@media (min-width:480px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+
+.display,h1,h2{font-family:'Bricolage Grotesque','Avenir Next','Helvetica Neue',Arial,sans-serif;letter-spacing:-.015em}
+h1{font-size:26px;line-height:1.15;margin:0}
+h2{font-size:19px;line-height:1.2;margin:0}
+.meta{font-size:13px;color:var(--muted)}
+.pad{padding:16px}
+
+/* wordmark: a small red hang-tag before the name */
+.wordmark{font:800 25px/1 'Bricolage Grotesque','Avenir Next',Arial,sans-serif;letter-spacing:-.025em;display:inline-flex;align-items:center;gap:9px}
+.wordmark::before{content:'';width:14px;height:20px;background:var(--red);
+  clip-path:polygon(50% 0,100% 28%,100% 100%,0 100%,0 28%);transform:rotate(-12deg)}
+.wordmark.big{font-size:40px}
+.wordmark.big::before{width:22px;height:32px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.search{display:flex;gap:8px;margin-top:12px}
+.search input{flex:1;min-width:0;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--bg);padding:0 16px}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;position:relative}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);white-space:nowrap;font-weight:500;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px;padding:14px 16px 8px}
+.card{display:block;text-align:left;background:none;border:0;padding:0;cursor:pointer;min-width:0}
+.tile{position:relative;aspect-ratio:1;border-radius:14px;display:grid;place-items:center;font-size:58px;overflow:hidden;background:var(--t0)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.t0{background:var(--t0)}.t1{background:var(--t1)}.t2{background:var(--t2)}.t3{background:var(--t3)}.t4{background:var(--t4)}.t5{background:var(--t5)}
+.card h3{font-weight:600;font-size:14.5px;line-height:1.3;margin:9px 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* the price tag: the one bold element */
+.tag{position:absolute;left:10px;top:12px;background:var(--red);color:#fff;
+  font:800 15px/1 'Bricolage Grotesque','Avenir Next',Arial,sans-serif;padding:6px 10px 6px 18px;
+  clip-path:polygon(11px 0,100% 0,100% 100%,11px 100%,0 50%);transform:rotate(-5deg);transform-origin:left center}
+.tag::before{content:'';position:absolute;left:7px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--surface)}
+.tag.free{background:var(--hedge);color:var(--surface)}
+.tag.lg{font-size:22px;padding:9px 14px 9px 24px;left:14px;top:16px;clip-path:polygon(15px 0,100% 0,100% 100%,15px 100%,0 50%)}
+.tag.lg::before{left:9px;width:7px;height:7px;margin-top:-3.5px}
+.badge{display:inline-block;font-size:12px;font-weight:600;color:var(--hedge);background:var(--hedge-soft);padding:2px 8px;border-radius:6px;margin-top:5px}
+.badge.gray{color:var(--muted);background:var(--bg)}
+.badge.red{color:var(--red);background:var(--red-soft)}
+
+.empty{padding:48px 24px;text-align:center}
+.empty p{color:var(--muted);margin:8px 0 18px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--red);color:#fff}
+.btn.dark{background:var(--ink);color:var(--surface)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.small{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:500}
+
+/* tab bar */
+#tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--surface);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:10}
+#tabs[hidden]{display:none}
+.tab{background:none;border:0;color:var(--muted);font-weight:500;font-size:11.5px;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;position:relative}
+.tab svg{width:23px;height:23px}
+.tab[aria-current="page"]{color:var(--ink);font-weight:700}
+.tab .plus{width:46px;height:31px;border-radius:10px;background:var(--red);color:#fff;display:grid;place-items:center}
+.tab .plus svg{width:20px;height:20px}
+.tab .dot{position:absolute;top:4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--red)}
+
+/* detail */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface)}
+.hero{aspect-ratio:4/3;border-radius:0;font-size:110px}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.fact{font-size:13px;font-weight:500;border:1px solid var(--line);border-radius:8px;padding:3px 9px}
+.note{background:var(--hedge-soft);color:var(--ink);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:14px}
+.note b{color:var(--hedge)}
+.desc{margin:12px 0 18px;max-width:62ch}
+.seller{display:flex;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:700;flex:none}
+.verified{color:var(--hedge);font-weight:600;font-size:13px}
+.actions{display:flex;gap:10px;padding:12px 16px 20px}
+.actions .btn{flex:1}
+
+/* sheet */
+#sheet{position:fixed;inset:0;z-index:30;display:none}
+#sheet.open{display:block}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.panel{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;max-height:88%;overflow:auto;background:var(--surface);
+  border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@keyframes up{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@media (prefers-reduced-motion: reduce){.panel{animation:none}}
+.panelhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.quick{display:flex;gap:8px;margin:10px 0 16px;flex-wrap:wrap}
+
+/* forms */
+label.l{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+.in{width:100%;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--bg);padding:10px 13px}
+textarea.in{min-height:96px;resize:vertical}
+.in[aria-invalid="true"]{border-color:var(--red)}
+.err{color:var(--red);font-size:13px;margin-top:5px;font-weight:500}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:11px 4px;cursor:pointer;font-weight:500}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.money{position:relative}
+.money span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
+.money .in{padding-left:28px}
+.photopick{display:grid;place-items:center;aspect-ratio:4/3;border:2px dashed var(--line);border-radius:14px;cursor:pointer;text-align:center;color:var(--muted);overflow:hidden;position:relative}
+.photopick img{width:100%;height:100%;object-fit:cover}
+.photopick .big{font-size:84px}
+.emojis{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.emojis button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:22px;cursor:pointer}
+.emojis button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.ai{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--bg)}
+.ai p{margin:0;font-size:13.5px}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.switchrow p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.switchrow input{width:22px;height:22px;accent-color:var(--hedge)}
+
+/* messages */
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;border:0;border-bottom:1px solid var(--line);background:none;width:100%;text-align:left;cursor:pointer}
+.thumb{width:52px;height:52px;border-radius:10px;display:grid;place-items:center;font-size:26px;flex:none;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.rowtext{flex:1;min-width:0}
+.rowtext b{display:block}
+.rowtext .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unread b::after{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:8px;vertical-align:middle}
+.threadhead{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--surface);z-index:5}
+.threadhead .listing{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer;text-align:left;min-width:0;flex:1}
+.threadhead .thumb{width:40px;height:40px;font-size:20px}
+.bubbles{padding:16px;display:flex;flex-direction:column;gap:8px}
+.b{max-width:80%;padding:9px 13px;border-radius:17px;line-height:1.4}
+.b.me{align-self:flex-end;background:var(--ink);color:var(--surface);border-bottom-right-radius:5px}
+.b.them{align-self:flex-start;background:var(--bg);border-bottom-left-radius:5px}
+.b.sys{align-self:center;background:none;color:var(--muted);font-size:13px;text-align:center;padding:4px}
+.offer{border:1.5px dashed var(--red);background:var(--surface)!important;color:var(--ink)!important;min-width:180px}
+.offer .amt{font:800 26px/1.1 'Bricolage Grotesque',Arial,sans-serif;margin:2px 0 4px}
+.offer .btns{display:flex;gap:8px;margin-top:10px}
+.meetup{padding:0 16px 16px}
+.composer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--surface);border-top:1px solid var(--line);
+  display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:10}
+.composer input{flex:1;min-width:0;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--bg);padding:0 16px}
+
+/* me */
+.profile{display:flex;align-items:center;gap:14px;padding:20px 16px;border-bottom:1px solid var(--line)}
+.profile .avatar{width:56px;height:56px;font-size:22px}
+.stats{display:flex;gap:24px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.stats b{font:800 22px/1 'Bricolage Grotesque',Arial,sans-serif;display:block}
+.sectionhead{display:flex;justify-content:space-between;align-items:baseline;padding:20px 16px 4px}
+.mine{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+.mine .rowtext b{font-weight:600}
+.mine .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.footer{padding:24px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+
+/* sign in */
+.signin{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px 48px;max-width:440px;margin:0 auto}
+.signin .lede{font-size:17px;margin:14px 0 28px;max-width:34ch}
+.proto{font-size:12.5px;color:var(--muted);margin-top:18px}
+
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);
+  padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div id="app"><main id="view"></main></div>
+<nav id="tabs" aria-label="Main"></nav>
+<div id="sheet"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+const KEY='dawgshop-v1';
+const DAY=864e5;
+const CATS=['Furniture','Dorm essentials','Electronics','Textbooks','Clothes','Free','Other'];
+const AREAS=['Boggs Hall','Brumby Hall','Creswell Hall','East Campus Village','Mary Lyndon Hall','Myers Hall','Oglethorpe House','Reed Hall','Russell Hall','Main Library','Tate Student Center','Five Points','Milledge Ave','Baxter St','The Mark','Reverb','Urbane'];
+const MEET=['Tate Student Center','MLC lobby','Main Library'];
+
+const ICON={
+  browse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
+  movein:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3.5 8 12 3.5 20.5 8v10.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1Z"/><path d="M3.5 8 12 12.5 20.5 8M12 12.5v7"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5.5h16v10H9l-5 4Z"/></svg>',
+  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>',
+  filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"/></svg>',
+  heartFull:'<svg viewBox="0 0 24 24" fill="var(--red)" stroke="var(--red)" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 12 20 4l-6 16-2.5-6.5Z"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+};
+
+const DRAFTS={
+  '🛋️':{title:'Gray futon, folds flat into a bed',cat:'Furniture',price:85,cond:'Used',desc:'Comfortable futon that folds flat into a bed. Light wear on the arms, no stains or tears. Fits a dorm or a small apartment living room.'},
+  '🪑':{title:'Rolling desk chair with armrests',cat:'Furniture',price:30,cond:'Used',desc:'Adjustable height, rolls smoothly, armrests are solid. Small scuff on the base.'},
+  '🧊':{title:'Mini fridge with freezer, 3.1 cu ft',cat:'Dorm essentials',price:50,cond:'Like new',desc:'Keeps drinks cold, small freezer works for ice. Cleaned out and ready to go. Fits under a lofted bed.'},
+  '📘':{title:'Course textbook, like new',cat:'Textbooks',price:45,cond:'Like new',desc:'No highlighting or writing inside. Add the course number so classmates in the same class can find it.'},
+  '💡':{title:'LED desk lamp with USB port',cat:'Dorm essentials',price:10,cond:'Like new',desc:'Three brightness levels and a USB port for charging your phone.'},
+  '🖥️':{title:'24 inch monitor with HDMI cable',cat:'Electronics',price:75,cond:'Used',desc:'1080p, no dead pixels. Comes with the stand and an HDMI cable.'},
+  '🚲':{title:'Commuter bike with lock',cat:'Other',price:110,cond:'Used',desc:'Tires hold air, brakes were adjusted this semester. Lock and key included.'},
+  '👕':{title:'Graphic tee, size M',cat:'Clothes',price:8,cond:'Like new',desc:'Worn twice, washed and folded.'}
+};
+
+const SELLERS={Ava:'ava.m',Jackson:'jackson.r',Maddie:'maddie.t',Tyler:'tyler.w',Priya:'priya.s',Will:'will.h',Sarah:'sarah.k',Marcus:'marcus.d',Emma:'emma.b',Caleb:'caleb.j',Olivia:'olivia.p',Noah:'noah.c'};
+
+function seed(){
+  const now=Date.now();
+  const rows=[
+    ['🧊','Mini fridge, 3.1 cu ft',45,'Dorm essentials','Like new','Russell Hall','Ava',0,'Works great and has a small freezer. Moving into an apartment with a full fridge, so it has to go.'],
+    ['🪑','IKEA desk chair',30,'Furniture','Used','The Mark','Jackson',1,'Swivels and adjusts. Some wear on the seat cushion.'],
+    ['📘','ACCT 2101 textbook',55,'Textbooks','Like new','Main Library','Maddie',2,'Financial accounting, current edition. No highlighting.',{course:'ACCT 2101'}],
+    ['🛋️','Futon, folds into a bed',90,'Furniture','Used','Urbane','Tyler',1,'Graduating in December. Pick up any time after finals.',{availableFrom:'2026-12-15'}],
+    ['💡','Desk lamp',8,'Dorm essentials','Like new','Creswell Hall','Priya',3,'Bright LED lamp, bendable neck.'],
+    ['🧮','TI-84 Plus calculator',50,'Electronics','Used','Myers Hall','Will',4,'Used for MATH 1113. Works perfectly, comes with the cover.',{course:'MATH 1113'}],
+    ['🧶','Area rug, 5 x 7',25,'Furniture','Used','Reed Hall','Sarah',5,'Soft, neutral gray. Vacuumed and rolled up.'],
+    ['🧺','Free: 3 storage bins',0,'Free','Used','Mary Lyndon Hall','Marcus',0,'Clear plastic bins with lids. Free to whoever picks them up first.'],
+    ['👗','Gameday dress, size S',18,'Clothes','Like new','Five Points','Emma',2,'Worn once. Red and black.'],
+    ['🔊','Bluetooth speaker',35,'Electronics','Like new','East Campus Village','Caleb',6,'Loud, waterproof, battery lasts all day.'],
+    ['📗','BIOL 1107 lab manual',15,'Textbooks','Used','Main Library','Olivia',3,'A few pages filled in, still usable for the course.',{course:'BIOL 1107'}],
+    ['🚲','Commuter bike',120,'Other','Used','Baxter St','Noah',2,'Leaving Athens after December graduation. Pick up after Dec 15.',{availableFrom:'2026-12-15'}],
+    ['🪞','Full-length mirror',12,'Dorm essentials','Used','Oglethorpe House','Ava',7,'Hangs on the back of a door. Hooks included.'],
+    ['📚','5-shelf bookcase',40,'Furniture','Used','Reverb','Jackson',3,'Studying abroad in the spring. Available when I move out in January.',{availableFrom:'2027-01-08'}],
+    ['🖥️','24 inch monitor',70,'Electronics','Used','Russell Hall','Maddie',8,'1080p with HDMI cable. Great second screen.'],
+    ['🛋️','Free: loveseat',0,'Free','Used','Milledge Ave','Tyler',1,'Has to be gone by Dec 15. Bring a friend, it is heavy.',{availableFrom:'2026-12-15'}],
+    ['📕','ECON 2105 textbook',40,'Textbooks','Like new','Tate Student Center','Priya',4,'Macroeconomics. Barely opened.',{course:'ECON 2105'}],
+    ['☕','Single-cup coffee maker',15,'Dorm essentials','Like new','Brumby Hall','Will',1,'Takes pods or a reusable filter. Descaled last month.'],
+    ['🧥','Rain jacket, size L',25,'Clothes','Used','Creswell Hall','Sarah',9,'Packs into its own pocket.'],
+    ['🌀','Clip-on fan',10,'Dorm essentials','Used','Boggs Hall','Marcus',2,'Clips onto a bed frame or desk. Two speeds.'],
+    ['📦','Full dorm setup: fridge, rug, lamp',80,'Dorm essentials','Used','Myers Hall','Emma',1,'Everything a freshman room needs. Reserve now and pick it up when you move in.',{availableFrom:'2027-08-01'}],
+    ['🍟','Air fryer',30,'Dorm essentials','Like new','The Mark','Caleb',5,'Used a handful of times. Basket is dishwasher safe.']
+  ];
+  return rows.map((r,i)=>{
+    const o=r[9]||{};
+    return {id:'s'+(i+1),emoji:r[0],photo:null,title:r[1],price:r[2],cat:r[3],cond:r[4],area:r[5],
+      sellerName:r[6],seller:SELLERS[r[6]]+'@uga.edu',posted:now-r[7]*DAY-i*36e5,desc:r[8],
+      course:o.course||'',availableFrom:o.availableFrom||'',status:'active'};
+  });
+}
+
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);if(d&&Array.isArray(d.listings))return d;}}catch(e){}return null;}
+let S=load()||{user:null,listings:seed(),convos:[],saved:[]};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+let stack=[{name:'browse'}];
+let route=stack[0];
+let filt={q:'',cat:'All',area:'Anywhere',max:'',sort:'new'};
+let sign={email:'',sent:false,err:''};
+let draft=null,draftErr={},editing=null,pendingDelete=null;
+
+const $=s=>document.querySelector(s);
+const view=$('#view'),tabs=$('#tabs'),sheet=$('#sheet'),app=$('#app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>n===0?'Free':'$'+n;
+function hash(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h);}
+const tcls=l=>'t'+(hash(l.id)%6);
+function ago(ts){const d=Math.floor((Date.now()-ts)/DAY);if(d<=0)return'today';if(d===1)return'yesterday';if(d<7)return d+'d ago';return Math.floor(d/7)+'w ago';}
+const dt=s=>new Date(s+'T12:00:00');
+const future=l=>!!l.availableFrom&&dt(l.availableFrom)>new Date();
+const fmt=s=>dt(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const media=l=>l.photo?`<img src="${l.photo}" alt="">`:`<span aria-hidden="true">${l.emoji||'📦'}</span>`;
+const tagHTML=(l,lg)=>`<span class="tag${l.price===0?' free':''}${lg?' lg':''}">${money(l.price)}</span>`;
+const byId=id=>S.listings.find(l=>l.id===id);
+const isMine=l=>S.user&&l.seller===S.user.email;
+function firstName(email){const local=email.split('@')[0];const t=local.split(/[._\-0-9]+/).filter(Boolean)[0]||local;return t.charAt(0).toUpperCase()+t.slice(1);}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+function go(r){stack.push(r);route=r;render();window.scrollTo(0,0);}
+function replace(r){stack[stack.length-1]=r;route=r;render();window.scrollTo(0,0);}
+function back(){if(stack.length>1)stack.pop();route=stack[stack.length-1];render();window.scrollTo(0,0);}
+function tab(name){stack=[{name}];route=stack[0];if(name==='sell')startDraft(null);render();window.scrollTo(0,0);}
+
+/* ---------- render ---------- */
+function render(){
+  closeSheet();
+  if(!S.user){tabs.hidden=true;app.style.paddingBottom='0';view.innerHTML=vSignin();return;}
+  app.style.paddingBottom='';
+  const v={browse:vBrowse,movein:vMovein,listing:vListing,sell:vSell,messages:vMessages,thread:vThread,me:vMe}[route.name]||vBrowse;
+  view.innerHTML=v();
+  tabs.hidden=route.name==='thread';
+  tabs.innerHTML=vTabs();
+  if(route.name==='thread'){const b=$('.bubbles');if(b)window.scrollTo(0,document.body.scrollHeight);}
+}
+
+function vTabs(){
+  const cur={listing:'browse',thread:'messages'}[route.name]||route.name;
+  const unread=S.convos.some(c=>c.unread);
+  const t=(n,label,icon,extra='')=>`<button class="tab" data-act="tab" data-tab="${n}" ${cur===n?'aria-current="page"':''}>${icon}${extra}<span>${label}</span></button>`;
+  return t('browse','Browse',ICON.browse)+t('movein','Move-in',ICON.movein)+
+    `<button class="tab" data-act="tab" data-tab="sell" ${cur==='sell'?'aria-current="page"':''}><span class="plus">${ICON.plus}</span><span>Sell</span></button>`+
+    t('messages','Messages',ICON.msg,unread?'<span class="dot" aria-label="Unread messages"></span>':'')+t('me','Me',ICON.me);
+}
+
+function vSignin(){
+  if(sign.sent){
+    return `<div class="signin"><div class="wordmark big">DawgShop</div>
+      <h1 style="margin-top:32px">Check your UGA inbox</h1>
+      <p class="lede">We sent a sign-in link to <b>${esc(sign.email)}</b>. Open it on this device to finish signing in.</p>
+      <button class="btn primary block" data-act="openLink">Open the sign-in link</button>
+      <p style="margin-top:16px"><button class="linkbtn" data-act="changeEmail">Use a different email</button></p>
+      <p class="proto">Prototype: no email is actually sent. The button stands in for the link.</p></div>`;
+  }
+  return `<div class="signin"><div class="wordmark big">DawgShop</div>
+    <p class="lede">Buy and sell with other UGA students. Every account is a verified @uga.edu email.</p>
+    <label class="l" for="emailIn">UGA email</label>
+    <input class="in" id="emailIn" type="email" inputmode="email" autocomplete="email" placeholder="you@uga.edu" value="${esc(sign.email)}" ${sign.err?'aria-invalid="true" aria-describedby="emailErr"':''}>
+    ${sign.err?`<div class="err" id="emailErr">${esc(sign.err)}</div>`:''}
+    <button class="btn primary block" style="margin-top:16px" data-act="sendLink">Send sign-in link</button></div>`;
+}
+
+function filtered(){
+  const q=filt.q.trim().toLowerCase(),qn=q.replace(/\s+/g,'');
+  let items=S.listings.filter(l=>l.status==='active');
+  if(filt.cat==='Free')items=items.filter(l=>l.price===0||l.cat==='Free');
+  else if(filt.cat!=='All')items=items.filter(l=>l.cat===filt.cat);
+  if(filt.area!=='Anywhere')items=items.filter(l=>l.area===filt.area);
+  if(filt.max!=='')items=items.filter(l=>l.price<=Number(filt.max));
+  if(q)items=items.filter(l=>{const hay=(l.title+' '+l.desc+' '+l.cat+' '+l.course+' '+l.area).toLowerCase();return hay.includes(q)||hay.replace(/\s+/g,'').includes(qn);});
+  items.sort(filt.sort==='low'?(a,b)=>a.price-b.price:filt.sort==='high'?(a,b)=>b.price-a.price:(a,b)=>b.posted-a.posted);
+  return items;
+}
+const card=l=>`<button class="card" data-act="open" data-id="${l.id}"><div class="tile ${tcls(l)}">${media(l)}${tagHTML(l)}</div>
+  <h3>${esc(l.title)}</h3><div class="meta">${esc(l.area)}, ${ago(l.posted)}</div>
+  ${future(l)?`<span class="badge">Available ${fmt(l.availableFrom)}</span>`:''}</button>`;
+function results(){
+  const items=filtered();
+  if(!items.length)return `<div class="empty"><h2>Nothing matches yet</h2><p>Try a different search, or clear your filters to see everything for sale.</p><button class="btn secondary" data-act="clearFilters">Clear filters</button></div>`;
+  return `<div class="grid">${items.map(card).join('')}</div>`;
+}
+function vBrowse(){
+  const active=filt.area!=='Anywhere'||filt.max!==''||filt.sort!=='new';
+  return `<header class="top"><div class="toprow"><span class="wordmark">DawgShop</span><span class="meta">Hi, ${esc(S.user.name)}</span></div>
+    <div class="search"><label class="sr" for="q">Search listings</label>
+    <input id="q" type="search" placeholder="Search or try ACCT 2101" value="${esc(filt.q)}">
+    <button class="iconbtn" data-act="filters" aria-label="Filters">${ICON.filter}${active?'<span class="dot"></span>':''}</button></div></header>
+    <div class="chips" role="group" aria-label="Categories">${['All',...CATS].map(c=>`<button class="chip" data-act="cat" data-cat="${c}" aria-pressed="${filt.cat===c}">${c}</button>`).join('')}</div>
+    <div id="results">${results()}</div>`;
+}
+
+function vMovein(){
+  const items=S.listings.filter(l=>l.status==='active'&&future(l)).sort((a,b)=>dt(a.availableFrom)-dt(b.availableFrom));
+  const groups={};items.forEach(l=>{const k=dt(l.availableFrom).toLocaleDateString('en-US',{month:'long',year:'numeric'});(groups[k]=groups[k]||[]).push(l);});
+  return `<header class="top"><h1>Move-in listings</h1><p class="meta" style="margin:4px 0 0">Students moving out list things now. Reserve one and pick it up when you get to campus.</p></header>
+    ${items.length?Object.keys(groups).map(k=>`<div class="sectionhead"><h2>${k}</h2><span class="meta">${groups[k].length} item${groups[k].length>1?'s':''}</span></div><div class="grid" style="padding-top:8px">${groups[k].map(card).join('')}</div>`).join('')
+    :`<div class="empty"><h2>No move-in listings yet</h2><p>When someone lists an item for a later date, it shows up here.</p><button class="btn primary" data-act="tab" data-tab="sell">List something for later</button></div>`}`;
+}
+
+function vListing(){
+  const l=byId(route.id);if(!l)return `<div class="empty"><h2>This listing is gone</h2><p>The seller removed it.</p><button class="btn secondary" data-act="tab" data-tab="browse">Back to browsing</button></div>`;
+  const mine=isMine(l),saved=S.saved.includes(l.id);
+  const status=l.status==='sold'?'<span class="badge red">Sold</span>':l.status==='hidden'?'<span class="badge gray">Unlisted</span>':'';
+  let actions;
+  if(mine){
+    actions=`<button class="btn secondary" data-act="edit" data-id="${l.id}">Edit</button>`+
+      (l.status==='active'?`<button class="btn secondary" data-act="sold" data-id="${l.id}">Mark sold</button><button class="btn secondary" data-act="unlist" data-id="${l.id}">Unlist</button>`
+      :`<button class="btn dark" data-act="relist" data-id="${l.id}">Relist</button>`);
+  }else if(l.status!=='active'){
+    actions=`<button class="btn secondary block" data-act="tab" data-tab="browse">This item is no longer available</button>`;
+  }else if(l.price===0){
+    actions=`<button class="btn primary" data-act="claim" data-id="${l.id}">Ask to claim it</button>`;
+  }else{
+    actions=`<button class="btn secondary" data-act="message" data-id="${l.id}">Message</button><button class="btn primary" data-act="offer" data-id="${l.id}">Make offer</button>`;
+  }
+  return `<div class="bar"><button class="iconbtn" data-act="back" aria-label="Back">${ICON.back}</button>
+    ${mine?'<span class="meta">Your listing</span>':`<button class="iconbtn" data-act="save" data-id="${l.id}" aria-label="${saved?'Remove from saved':'Save'}" aria-pressed="${saved}">${saved?ICON.heartFull:ICON.heart}</button>`}</div>
+    <div class="tile hero ${tcls(l)}">${media(l)}${tagHTML(l,true)}</div>
+    <div class="pad"><h1>${esc(l.title)}</h1>${status}
+      <div class="facts"><span class="fact">${esc(l.cond)}</span><span class="fact">${esc(l.cat)}</span>${l.course?`<span class="fact">${esc(l.course)}</span>`:''}</div>
+      <p class="meta" style="margin:0">Pickup at <b style="color:var(--ink)">${esc(l.area)}</b>. Posted ${ago(l.posted)}.</p>
+      ${future(l)?`<div class="note"><b>Available ${fmt(l.availableFrom)}.</b> Reserve it now and pick it up once it's ready.</div>`:''}
+      <p class="desc">${esc(l.desc)}</p>
+      <div class="seller"><span class="avatar">${esc(l.sellerName.charAt(0))}</span><div><b>${mine?'You':esc(l.sellerName)}</b><div class="verified">✓ Verified UGA student</div></div></div>
+    </div><div class="actions">${actions}</div>`;
+}
+
+/* ---------- sell ---------- */
+function startDraft(id){
+  const l=id?byId(id):null;editing=id||null;draftErr={};
+  draft=l?{photo:l.photo,emoji:l.photo?null:l.emoji,title:l.title,price:String(l.price),cat:l.cat,cond:l.cond,area:l.area,course:l.course,desc:l.desc,later:!!l.availableFrom,from:l.availableFrom,ai:false}
+    :{photo:null,emoji:null,title:'',price:'',cat:'',cond:'Used',area:'',course:'',desc:'',later:false,from:'',ai:false};
+}
+function vSell(){
+  if(!draft)startDraft(null);
+  const d=draft,e=draftErr;
+  const inv=k=>e[k]?`aria-invalid="true" aria-describedby="err-${k}"`:'';
+  const er=k=>e[k]?`<div class="err" id="err-${k}">${e[k]}</div>`:'';
+  const hasImg=d.photo||d.emoji;
+  return `<header class="top"><div class="toprow">${editing?`<button class="iconbtn" data-act="back" aria-label="Back">${ICON.back}</button>`:''}<h1 style="flex:1">${editing?'Edit listing':'Sell something'}</h1></div></header>
+  <div class="pad">
+    <label class="photopick" for="photoIn">${d.photo?`<img src="${d.photo}" alt="Your photo">`:d.emoji?`<span class="big" aria-hidden="true">${d.emoji}</span>`:'<span><b style="color:var(--ink)">Add a photo</b><br>Tap to take or choose one</span>'}</label>
+    <input id="photoIn" type="file" accept="image/*" class="sr">
+    <div class="meta" style="margin-top:12px">No photo handy? Pick an icon for now.</div>
+    <div class="emojis">${Object.keys(DRAFTS).map(x=>`<button data-act="emoji" data-e="${x}" aria-pressed="${d.emoji===x}" aria-label="Use icon ${x}">${x}</button>`).join('')}</div>
+    <div class="ai"><p>${d.ai?'<b>Drafted from your photo.</b> Check every field before you post.':'<b>Let AI write the listing.</b> It drafts the title, details, and a fair price.'}</p>
+      <button class="btn dark small" data-act="ai" ${hasImg?'':'disabled'}>${d.ai?'Redo draft':'Draft it'}</button></div>
+    ${e.ai?`<div class="err">${e.ai}</div>`:''}
+    <label class="l" for="f-title">Title</label><input class="in" id="f-title" data-f="title" maxlength="70" value="${esc(d.title)}" placeholder="Mini fridge, 3.1 cu ft" ${inv('title')}>${er('title')}
+    <label class="l" for="f-price">Price</label><div class="money"><span>$</span><input class="in" id="f-price" data-f="price" inputmode="numeric" value="${esc(d.price)}" placeholder="0 for free" ${inv('price')}></div>${er('price')}
+    <label class="l" for="f-cat">Category</label><select class="in" id="f-cat" data-f="cat" ${inv('cat')}><option value="">Choose a category</option>${CATS.map(c=>`<option ${d.cat===c?'selected':''}>${c}</option>`).join('')}</select>${er('cat')}
+    ${d.cat==='Textbooks'?`<label class="l" for="f-course">Course number</label><input class="in" id="f-course" data-f="course" value="${esc(d.course)}" placeholder="ACCT 2101"><div class="meta" style="margin-top:4px">Students search by course, so this helps it sell.</div>`:''}
+    <span class="l" style="display:block;font-weight:600;font-size:14px;margin:16px 0 6px">Condition</span>
+    <div class="seg" role="group" aria-label="Condition">${['New','Like new','Used'].map(c=>`<button data-act="cond" data-c="${c}" aria-pressed="${d.cond===c}">${c}</button>`).join('')}</div>
+    <label class="l" for="f-area">Pickup spot</label><select class="in" id="f-area" data-f="area" ${inv('area')}><option value="">Where can buyers pick it up?</option>${AREAS.map(a=>`<option ${d.area===a?'selected':''}>${a}</option>`).join('')}</select>${er('area')}
+    <label class="l" for="f-desc">Description</label><textarea class="in" id="f-desc" data-f="desc" placeholder="Condition, size, why you're selling">${esc(d.desc)}</textarea>
+    <label class="switchrow" for="f-later"><span><b>Available later</b><p>For move-in listings. Buyers can reserve it now.</p></span><input type="checkbox" id="f-later" data-f="later" ${d.later?'checked':''}></label>
+    ${d.later?`<label class="l" for="f-from">Available from</label><input class="in" type="date" id="f-from" data-f="from" value="${esc(d.from)}" ${inv('from')}>${er('from')}`:''}
+    <button class="btn primary block" style="margin-top:24px" data-act="post">${editing?'Save changes':'Post listing'}</button>
+  </div>`;
+}
+function syncDraft(){document.querySelectorAll('[data-f]').forEach(el=>{draft[el.dataset.f]=el.type==='checkbox'?el.checked:el.value;});}
+function post(){
+  syncDraft();const d=draft,e={};
+  if(!d.title.trim())e.title='Add a title so buyers know what it is.';
+  const p=d.price.trim();
+  if(p===''||!/^\d+$/.test(p))e.price='Enter a whole-dollar price. Use 0 to give it away.';
+  if(!d.cat)e.cat='Choose a category.';
+  if(!d.area)e.area='Choose where buyers can pick it up.';
+  if(d.later&&!d.from)e.from='Choose the date it becomes available.';
+  draftErr=e;
+  if(Object.keys(e).length){render();const first=document.querySelector('[aria-invalid="true"]');if(first)first.focus();return;}
+  const fields={photo:d.photo,emoji:d.photo?null:(d.emoji||'📦'),title:d.title.trim(),price:Number(p),cat:Number(p)===0&&d.cat!=='Textbooks'?'Free':d.cat,cond:d.cond,area:d.area,
+    course:d.cat==='Textbooks'?d.course.trim().toUpperCase():'',desc:d.desc.trim(),availableFrom:d.later?d.from:''};
+  if(editing){Object.assign(byId(editing),fields);save();draft=null;editing=null;if(stack.length>1)stack.pop();route=stack[stack.length-1];render();window.scrollTo(0,0);toast('Changes saved');}
+  else{const l=Object.assign({id:'u'+Date.now(),seller:S.user.email,sellerName:S.user.name,posted:Date.now(),status:'active'},fields);
+    S.listings.unshift(l);save();draft=null;stack=[{name:'browse'},{name:'listing',id:l.id}];route=stack[1];render();window.scrollTo(0,0);toast('Listing posted');}
+}
+function readPhoto(file){
+  const r=new FileReader();
+  r.onload=()=>{const img=new Image();img.onload=()=>{
+    const m=900,s=Math.min(1,m/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    syncDraft();draft.photo=c.toDataURL('image/jpeg',.78);draft.emoji=null;draft.ai=false;render();};img.src=r.result;};
+  r.readAsDataURL(file);
+}
+
+/* ---------- messages ---------- */
+function convoFor(l){
+  let c=S.convos.find(c=>c.listingId===l.id);
+  if(!c){c={id:'c'+Date.now(),listingId:l.id,withName:l.sellerName,msgs:[],updated:Date.now(),deal:null,unread:false};S.convos.unshift(c);}
+  return c;
+}
+function push(c,m){c.msgs.push(m);c.updated=Date.now();}
+function later(c,fn,ms){setTimeout(()=>{fn();c.updated=Date.now();if(!(route.name==='thread'&&route.id===c.id))c.unread=true;save();render();},ms||1500);}
+function lastText(c){const m=c.msgs[c.msgs.length-1];if(!m)return'';if(m.offer)return(m.from==='me'?'You offered ':'Offer: ')+money(m.offer.amount);return(m.from==='me'?'You: ':'')+m.text;}
+function vMessages(){
+  const cs=S.convos.filter(c=>c.msgs.length).sort((a,b)=>b.updated-a.updated);
+  return `<header class="top"><h1>Messages</h1></header>`+(cs.length?cs.map(c=>{const l=byId(c.listingId)||{emoji:'📦',title:'Removed listing',id:'x'};
+    return `<button class="row${c.unread?' unread':''}" data-act="thread" data-id="${c.id}"><span class="thumb ${tcls(l)}">${media(l)}</span>
+      <span class="rowtext"><b>${esc(c.withName)}</b><span class="meta" style="display:block">${esc(l.title)}</span><span class="meta" style="display:block">${esc(lastText(c))}</span></span></button>`;}).join('')
+    :`<div class="empty"><h2>No messages yet</h2><p>Find something you like and message the seller. Your conversations show up here.</p><button class="btn primary" data-act="tab" data-tab="browse">Browse listings</button></div>`);
+}
+function vThread(){
+  const c=S.convos.find(x=>x.id===route.id);if(!c)return'';c.unread=false;save();
+  const l=byId(c.listingId)||{emoji:'📦',title:'Removed listing',price:0,id:'x'};
+  const bubble=m=>{
+    if(m.from==='sys')return `<div class="b sys">${esc(m.text)}</div>`;
+    if(m.offer){const o=m.offer;const st={pending:m.from==='me'?'Waiting for a reply':'Waiting on you',accepted:'Accepted',declined:'Declined'}[o.status];
+      return `<div class="b ${m.from} offer"><div class="meta">${m.from==='me'?'Your offer':esc(c.withName)+"'s counteroffer"}</div><div class="amt">${money(o.amount)}</div>
+        <span class="badge ${o.status==='accepted'?'':o.status==='declined'?'red':'gray'}">${st}</span>
+        ${m.from==='them'&&o.status==='pending'?`<div class="btns"><button class="btn primary small" data-act="acceptCounter" data-m="${m.id}">Accept ${money(o.amount)}</button><button class="btn secondary small" data-act="declineCounter" data-m="${m.id}">Decline</button></div>`:''}</div>`;}
+    return `<div class="b ${m.from}">${esc(m.text)}</div>`;
+  };
+  const meetDone=c.msgs.some(m=>m.meet);
+  return `<div class="threadhead"><button class="iconbtn" data-act="back" aria-label="Back">${ICON.back}</button>
+    <button class="listing" data-act="open" data-id="${l.id}"><span class="thumb ${tcls(l)}">${media(l)}</span><span class="rowtext"><b>${esc(c.withName)}</b><span class="meta" style="display:block">${esc(l.title)}, ${money(l.price)}</span></span></button></div>
+    <div class="bubbles">${c.msgs.length?c.msgs.map(bubble).join(''):`<div class="b sys">Say hi to ${esc(c.withName)}. Ask a question or make an offer.</div>`}</div>
+    ${c.deal!==null&&!meetDone?`<div class="meetup"><p class="meta" style="margin:0 0 8px">Pick a public spot on campus to meet:</p><div class="quick" style="margin:0">${MEET.map(p=>`<button class="chip" data-act="meet" data-p="${p}">${p}</button>`).join('')}</div></div>`:''}
+    ${c.deal===null&&l.price>0&&l.status==='active'&&!c.msgs.some(m=>m.offer&&m.offer.status==='pending')?`<div class="meetup"><button class="btn secondary small" data-act="offer" data-id="${l.id}">Make an offer</button></div>`:''}
+    <div style="height:80px"></div>
+    <div class="composer"><label class="sr" for="msgIn">Message</label><input id="msgIn" placeholder="Message ${esc(c.withName)}" autocomplete="off">
+      <button class="iconbtn" data-act="send" aria-label="Send">${ICON.send}</button></div>`;
+}
+function sendText(c,text){
+  const firstReply=!c.msgs.some(m=>m.from==='them');
+  push(c,{id:'m'+Date.now(),from:'me',text});save();render();
+  if(firstReply)later(c,()=>push(c,{id:'m'+Date.now(),from:'them',text:'Hey! Yes, it\'s still available.'}));
+}
+function sendOffer(l,amount){
+  const c=convoFor(l);
+  const m={id:'m'+Date.now(),from:'me',offer:{amount,status:'pending'}};push(c,m);save();
+  closeSheet();if(route.name==='thread'&&route.id===c.id)render();else go({name:'thread',id:c.id});
+  later(c,()=>{
+    if(amount>=Math.round(l.price*0.85)){m.offer.status='accepted';c.deal=amount;
+      push(c,{id:'m'+Date.now(),from:'them',text:'Deal! When works for you?'});
+      push(c,{id:'s'+Date.now(),from:'sys',text:'Deal at '+money(amount)+'. Choose where to meet below.'});}
+    else{m.offer.status='declined';const counter=Math.round((l.price+amount)/2);
+      push(c,{id:'m'+Date.now(),from:'them',text:'That\'s a little low for me.'});
+      push(c,{id:'m'+(Date.now()+1),from:'them',offer:{amount:counter,status:'pending'}});}
+  },1700);
+}
+
+/* ---------- me ---------- */
+function vMe(){
+  const mine=S.listings.filter(isMine);
+  const saved=S.saved.map(byId).filter(Boolean);
+  const stat=l=>l.status==='sold'?'<span class="badge red">Sold</span>':l.status==='hidden'?'<span class="badge gray">Unlisted</span>':future(l)?`<span class="badge">Available ${fmt(l.availableFrom)}</span>`:'<span class="badge">Active</span>';
+  const row=l=>`<div class="mine"><button class="thumb ${tcls(l)}" data-act="open" data-id="${l.id}" style="border:0;cursor:pointer" aria-label="Open ${esc(l.title)}">${media(l)}</button>
+    <div class="rowtext"><b>${esc(l.title)}</b><span class="meta">${money(l.price)}</span> ${stat(l)}
+    <div class="acts"><button class="btn secondary small" data-act="edit" data-id="${l.id}">Edit</button>
+    ${l.status==='active'?`<button class="btn secondary small" data-act="sold" data-id="${l.id}">Mark sold</button><button class="btn secondary small" data-act="unlist" data-id="${l.id}">Unlist</button>`:`<button class="btn secondary small" data-act="relist" data-id="${l.id}">Relist</button>`}
+    <button class="btn secondary small" data-act="del" data-id="${l.id}" style="${pendingDelete===l.id?'color:#fff;background:var(--red);border-color:var(--red)':''}">${pendingDelete===l.id?'Tap again to delete':'Delete'}</button></div></div></div>`;
+  return `<div class="profile"><span class="avatar">${esc(S.user.name.charAt(0))}</span><div><h2>${esc(S.user.name)}</h2><div class="meta">${esc(S.user.email)}</div><div class="verified">✓ Verified UGA student</div></div></div>
+    <div class="stats"><div><b>${mine.filter(l=>l.status==='active').length}</b><span class="meta">Active</span></div><div><b>${mine.filter(l=>l.status==='sold').length}</b><span class="meta">Sold</span></div><div><b>${saved.length}</b><span class="meta">Saved</span></div></div>
+    <div class="sectionhead"><h2>Your listings</h2></div>
+    ${mine.length?mine.map(row).join(''):`<div class="empty" style="padding:24px"><p>You haven't listed anything yet.</p><button class="btn primary" data-act="tab" data-tab="sell">Post your first item</button></div>`}
+    <div class="sectionhead"><h2>Saved</h2></div>
+    ${saved.length?`<div class="grid">${saved.map(card).join('')}</div>`:`<p class="meta" style="padding:4px 16px">Tap the heart on any listing to save it here.</p>`}
+    <div class="footer"><button class="btn secondary" data-act="signout">Sign out</button>
+      <button class="linkbtn" data-act="reset">Reset demo data</button>
+      <span class="meta">DawgShop prototype v1. Listings and sellers are sample data.</span></div>`;
+}
+
+/* ---------- sheets ---------- */
+function openSheet(html){sheet.innerHTML=`<div class="scrim" data-act="closeSheet"></div><div class="panel" role="dialog" aria-modal="true">${html}</div>`;sheet.classList.add('open');const f=sheet.querySelector('input,select');if(f)f.focus();}
+function closeSheet(){sheet.classList.remove('open');sheet.innerHTML='';}
+function filterSheet(){
+  openSheet(`<div class="panelhead"><h2>Filters</h2><button class="iconbtn" data-act="closeSheet" aria-label="Close">${ICON.close}</button></div>
+    <label class="l" for="fa">Pickup spot</label><select class="in" id="fa"><option>Anywhere</option>${AREAS.map(a=>`<option ${filt.area===a?'selected':''}>${a}</option>`).join('')}</select>
+    <label class="l" for="fm">Max price</label><div class="money"><span>$</span><input class="in" id="fm" inputmode="numeric" placeholder="Any price" value="${esc(filt.max)}"></div>
+    <label class="l" for="fs">Sort by</label><select class="in" id="fs"><option value="new" ${filt.sort==='new'?'selected':''}>Newest first</option><option value="low" ${filt.sort==='low'?'selected':''}>Price: low to high</option><option value="high" ${filt.sort==='high'?'selected':''}>Price: high to low</option></select>
+    <div class="actions" style="padding:20px 0 0"><button class="btn secondary" data-act="clearFilters">Clear</button><button class="btn dark" data-act="applyFilters">Show results</button></div>`);
+}
+function offerSheet(l){
+  const p=n=>Math.max(1,Math.round(l.price*n));
+  openSheet(`<div class="panelhead"><h2>Make an offer</h2><button class="iconbtn" data-act="closeSheet" aria-label="Close">${ICON.close}</button></div>
+    <p class="meta" style="margin:0">${esc(l.sellerName)} is asking ${money(l.price)} for ${esc(l.title)}.</p>
+    <div class="quick">${[1,.9,.8].map(n=>`<button class="chip" data-act="setOffer" data-v="${p(n)}">${money(p(n))}${n===1?' (asking)':''}</button>`).join('')}</div>
+    <label class="l" for="offerAmt" style="margin-top:0">Your offer</label><div class="money"><span>$</span><input class="in" id="offerAmt" inputmode="numeric" value="${p(.9)}"></div>
+    <div class="err" id="offerErr" hidden></div>
+    <button class="btn primary block" style="margin-top:16px" data-act="sendOffer" data-id="${l.id}">Send offer</button>
+    <p class="meta" style="margin-top:10px">If they accept, you'll pick a public spot on campus and pay in person.</p>`);
+}
+
+/* ---------- actions ---------- */
+const A={
+  tab:t=>tab(t.dataset.tab),
+  back:()=>{if(route.name==='sell'){draft=null;editing=null;}back();},
+  open:t=>{if(t.dataset.id!=='x')go({name:'listing',id:t.dataset.id});},
+  cat:t=>{filt.cat=t.dataset.cat;render();},
+  filters:()=>filterSheet(),
+  closeSheet:()=>closeSheet(),
+  applyFilters:()=>{const m=$('#fm').value.trim();filt.area=$('#fa').value;filt.max=/^\d+$/.test(m)?m:'';filt.sort=$('#fs').value;closeSheet();render();},
+  clearFilters:()=>{filt={q:'',cat:'All',area:'Anywhere',max:'',sort:'new'};closeSheet();render();},
+  sendLink:()=>{const v=($('#emailIn').value||'').trim().toLowerCase();sign.email=v;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))sign.err='Enter a full email address, like you@uga.edu.';
+    else if(!v.endsWith('@uga.edu'))sign.err='DawgShop is only for UGA students. Use your @uga.edu email.';
+    else{sign.err='';sign.sent=true;}
+    render();if(sign.err)$('#emailIn').focus();},
+  changeEmail:()=>{sign.sent=false;render();},
+  openLink:()=>{S.user={email:sign.email,name:firstName(sign.email)};save();sign={email:'',sent:false,err:''};stack=[{name:'browse'}];route=stack[0];render();toast('Signed in as '+S.user.email);},
+  signout:()=>{S.user=null;save();render();},
+  reset:()=>{const u=S.user;S={user:u,listings:seed(),convos:[],saved:[]};save();toast('Demo data reset');tab('browse');},
+  save:t=>{const id=t.dataset.id,i=S.saved.indexOf(id);if(i>-1){S.saved.splice(i,1);toast('Removed from saved');}else{S.saved.push(id);toast('Saved');}save();render();},
+  edit:t=>{startDraft(t.dataset.id);go({name:'sell'});},
+  sold:t=>{byId(t.dataset.id).status='sold';save();render();toast('Marked as sold');},
+  unlist:t=>{byId(t.dataset.id).status='hidden';save();render();toast('Listing hidden from buyers');},
+  relist:t=>{byId(t.dataset.id).status='active';save();render();toast('Listing is live again');},
+  del:t=>{const id=t.dataset.id;if(pendingDelete!==id){pendingDelete=id;render();return;}
+    S.listings=S.listings.filter(l=>l.id!==id);S.saved=S.saved.filter(x=>x!==id);pendingDelete=null;save();render();toast('Listing deleted');},
+  emoji:t=>{syncDraft();draft.emoji=t.dataset.e;draft.photo=null;draft.ai=false;render();},
+  cond:t=>{syncDraft();draft.cond=t.dataset.c;render();},
+  ai:()=>{syncDraft();
+    if(draft.photo&&!draft.emoji){draftErr.ai='In this prototype, AI drafts only work with the sample icons. The real version will read your photo.';render();return;}
+    const x=DRAFTS[draft.emoji];if(!x){draftErr.ai='Pick one of the sample icons above to see an example draft.';render();return;}
+    Object.assign(draft,{title:x.title,cat:x.cat,price:String(x.price),cond:x.cond,desc:x.desc,ai:true});draftErr={};render();toast('Draft ready. Review it before posting.');},
+  post:()=>post(),
+  message:t=>{const c=convoFor(byId(t.dataset.id));save();go({name:'thread',id:c.id});},
+  claim:t=>{const l=byId(t.dataset.id);const c=convoFor(l);go({name:'thread',id:c.id});
+    sendText(c,'Hi! Is this still available? I\'d love to pick it up.');},
+  offer:t=>offerSheet(byId(t.dataset.id)),
+  setOffer:t=>{$('#offerAmt').value=t.dataset.v;},
+  sendOffer:t=>{const v=$('#offerAmt').value.trim(),err=$('#offerErr');
+    if(!/^\d+$/.test(v)||Number(v)<1){err.textContent='Enter an offer of at least $1.';err.hidden=false;return;}
+    sendOffer(byId(t.dataset.id),Number(v));},
+  thread:t=>go({name:'thread',id:t.dataset.id}),
+  send:()=>{const i=$('#msgIn');const v=i.value.trim();if(!v)return;const c=S.convos.find(x=>x.id===route.id);sendText(c,v);const n=$('#msgIn');if(n)n.focus();},
+  acceptCounter:t=>{const c=S.convos.find(x=>x.id===route.id);const m=c.msgs.find(x=>x.id===t.dataset.m);m.offer.status='accepted';c.deal=m.offer.amount;
+    push(c,{id:'m'+Date.now(),from:'me',text:'Deal, '+money(m.offer.amount)+' works.'});push(c,{id:'s'+Date.now(),from:'sys',text:'Deal at '+money(m.offer.amount)+'. Choose where to meet below.'});save();render();},
+  declineCounter:t=>{const c=S.convos.find(x=>x.id===route.id);const m=c.msgs.find(x=>x.id===t.dataset.m);m.offer.status='declined';
+    push(c,{id:'m'+Date.now(),from:'me',text:'No worries, thanks anyway.'});save();render();},
+  meet:t=>{const c=S.convos.find(x=>x.id===route.id);push(c,{id:'m'+Date.now(),from:'me',text:'Want to meet at '+t.dataset.p+'?',meet:true});save();render();
+    later(c,()=>push(c,{id:'m'+Date.now(),from:'them',text:t.dataset.p+' works. Message me when you\'re there.'}));}
+};
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  if(t.dataset.act!=='del'&&pendingDelete){pendingDelete=null;}
+  const fn=A[t.dataset.act];if(fn){e.preventDefault();fn(t);}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){filt.q=e.target.value;const r=$('#results');if(r)r.innerHTML=results();}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='photoIn'&&e.target.files[0])readPhoto(e.target.files[0]);
+  if(e.target.dataset.f==='cat'||e.target.dataset.f==='later'){syncDraft();render();}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  if(e.target.id==='emailIn'){e.preventDefault();A.sendLink();}
+  else if(e.target.id==='msgIn'){e.preventDefault();A.send();}
+  else if(e.target.id==='q'){e.target.blur();}
+  else if(e.target.id==='offerAmt'){e.preventDefault();const b=sheet.querySelector('[data-act="sendOffer"]');if(b)A.sendOffer(b);}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheet.classList.contains('open'))closeSheet();});
+
+render();
+})();
+</script>
+</body>
+</html>
