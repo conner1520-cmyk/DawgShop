@@ -1,0 +1,101 @@
+/*
+  DawgShop styles, ported from prototype/dawgshop-v1.html.
+  Only the pieces used by the current screens are here. Port more from the
+  prototype as later issues need them (tiles, tags, tab bar, sheets, etc.).
+  Fonts come from next/font in app/layout.tsx via --font-public-sans and
+  --font-bricolage.
+*/
+
+:root{
+  --bg:#F1F0ED; --surface:#FFFFFF; --ink:#1C1B1A; --muted:#6A6661; --line:#E2E0DB;
+  --red:#A3122A; --red-soft:#F7E3E6; --hedge:#2D5C3C; --hedge-soft:#E2EDE5; --focus:#1D5FD1;
+  --t0:#F0DCDC; --t1:#DCE8DF; --t2:#E0E3EE; --t3:#F1E7CC; --t4:#E7DEEE; --t5:#D9E9EC;
+  --sans:var(--font-public-sans),'Public Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --display:var(--font-bricolage),'Bricolage Grotesque','Avenir Next','Helvetica Neue',Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121110; --surface:#1C1B19; --ink:#F2F0EC; --muted:#A5A099; --line:#33312D;
+    --red:#E4566A; --red-soft:#3A1A20; --hedge:#86C79C; --hedge-soft:#1C3024; --focus:#7EA8FF;
+    --t0:#3A2626; --t1:#22332A; --t2:#272B3A; --t3:#3A3220; --t4:#30283A; --t5:#21343A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121110; --surface:#1C1B19; --ink:#F2F0EC; --muted:#A5A099; --line:#33312D;
+  --red:#E4566A; --red-soft:#3A1A20; --hedge:#86C79C; --hedge-soft:#1C3024; --focus:#7EA8FF;
+  --t0:#3A2626; --t1:#22332A; --t2:#272B3A; --t3:#3A3220; --t4:#30283A; --t5:#21343A;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* the phone column */
+#app{max-width:440px;margin:0 auto;min-height:100vh;background:var(--surface);position:relative;padding-bottom:88px}
+#app.nopad{padding-bottom:84px}
+/* no tab bar yet (that comes with listings), so no room is reserved for it */
+#app.notabs{padding-bottom:0}
+@media (min-width:480px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+
+.display,h1,h2{font-family:var(--display);letter-spacing:-.015em}
+h1{font-size:26px;line-height:1.15;margin:0}
+h2{font-size:19px;line-height:1.2;margin:0}
+.meta{font-size:13px;color:var(--muted)}
+.pad{padding:16px}
+
+/* wordmark: a small red hang-tag before the name */
+.wordmark{font:800 25px/1 var(--display);letter-spacing:-.025em;display:inline-flex;align-items:center;gap:9px}
+.wordmark::before{content:'';width:14px;height:20px;background:var(--red);
+  clip-path:polygon(50% 0,100% 28%,100% 100%,0 100%,0 28%);transform:rotate(-12deg)}
+.wordmark.big{font-size:40px}
+.wordmark.big::before{width:22px;height:32px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+.empty{padding:48px 24px;text-align:center}
+.empty p{color:var(--muted);margin:8px 0 18px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--red);color:#fff}
+.btn.dark{background:var(--ink);color:var(--surface)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.small{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:500}
+
+/* forms */
+label.l{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+.in{width:100%;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--bg);padding:10px 13px}
+textarea.in{min-height:96px;resize:vertical}
+.in[aria-invalid="true"]{border-color:var(--red)}
+.err{color:var(--red);font-size:13px;margin-top:5px;font-weight:500}
+
+/* profile line */
+.profile{display:flex;align-items:center;gap:14px;padding:20px 16px;border-bottom:1px solid var(--line)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:700;flex:none}
+.profile .avatar{width:56px;height:56px;font-size:22px}
+.verified{color:var(--hedge);font-weight:600;font-size:13px}
+.footer{padding:24px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+
+/* sign in */
+.signin{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px 48px;max-width:440px;margin:0 auto}
+.signin .lede{font-size:17px;margin:14px 0 28px;max-width:34ch}
+.proto{font-size:12.5px;color:var(--muted);margin-top:18px}
+/* Sign-in code (6-10 digits): big and spaced out so it is easy to check */
+.in.code{font-size:26px;font-weight:600;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums;padding-left:calc(13px + .4em)}
+.in.code::placeholder{color:var(--muted);opacity:.45}
+.signin-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:18px}
+.linkbtn:disabled{color:var(--muted);text-decoration:none;cursor:not-allowed}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

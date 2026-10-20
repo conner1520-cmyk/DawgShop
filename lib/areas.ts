@@ -1,0 +1,20 @@
+// Pickup areas from the v1 prototype (prototype/dawgshop-v1.html, AREAS).
+export const AREAS = [
+  "Boggs Hall",
+  "Brumby Hall",
+  "Creswell Hall",
+  "East Campus Village",
+  "Mary Lyndon Hall",
+  "Myers Hall",
+  "Oglethorpe House",
+  "Reed Hall",
+  "Russell Hall",
+  "Main Library",
+  "Tate Student Center",
+  "Five Points",
+  "Milledge Ave",
+  "Baxter St",
+  "The Mark",
+  "Reverb",
+  "Urbane",
+] as const;
