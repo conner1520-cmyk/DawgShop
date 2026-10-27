@@ -2,12 +2,15 @@
 
 import { useActionState, useState } from "react";
 import { AREAS } from "@/lib/areas";
+import { PasswordField } from "@/components/password-field";
 import { saveProfile, type WelcomeState } from "./actions";
 
 export function WelcomeForm({ defaultName }: { defaultName: string }) {
   const [state, formAction, pending] = useActionState<WelcomeState, FormData>(saveProfile, {});
   const [name, setName] = useState(defaultName);
   const [area, setArea] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const e = state.errors ?? {};
 
   return (
@@ -62,6 +65,31 @@ export function WelcomeForm({ defaultName }: { defaultName: string }) {
       <div className="meta" style={{ marginTop: 4 }}>
         Optional. It fills in your pickup spot when you sell.
       </div>
+
+      <PasswordField
+        id="f-password"
+        name="password"
+        label="Create a password"
+        autoComplete="new-password"
+        value={password}
+        onChange={setPassword}
+        error={e.password}
+        showStrength
+        describedBy="pw-help"
+      />
+      <div className="meta" id="pw-help" style={{ marginTop: 4 }}>
+        At least 8 characters. Next time, sign in with your email and this password.
+      </div>
+
+      <PasswordField
+        id="f-confirm"
+        name="confirm_password"
+        label="Confirm password"
+        autoComplete="new-password"
+        value={confirm}
+        onChange={setConfirm}
+        error={e.confirm}
+      />
 
       {e.form && (
         <div className="err" role="alert" style={{ marginTop: 16 }}>

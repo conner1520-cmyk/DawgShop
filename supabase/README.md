@@ -1,7 +1,8 @@
 # Supabase setup
 
-DawgShop uses Supabase for sign-in and the database. Students sign in with a
-one-time code emailed to their @uga.edu address. (We use a code instead of a
+DawgShop uses Supabase for sign-in and the database. Students create their
+account with a one-time code emailed to their @uga.edu address, then sign in
+with a password (see step 7). (We use a code instead of a
 magic link because UGA mail runs on Microsoft 365, and its Safe Links scanner
 opens links in incoming mail, which uses up a one-time link before the student
 can click it.)
@@ -21,7 +22,7 @@ the Supabase dashboard. Never commit them, and never paste them into a chat
 
 ## 2. Create the tables
 
-Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`.
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`. Then run `0002_passwords.sql` the same way (see step 7).
 
 ## 3. URLs
 
@@ -89,6 +90,34 @@ Limits to know:
 - Supabase also caps auth emails per hour (**Authentication → Rate Limits**). The default can be low; raise it before a demo where many people sign in at once.
 - If a code doesn't arrive, check the UGA junk/quarantine folder.
 
-## 7. Try it
+## 7. Passwords
 
-Run `npm run dev`, open http://localhost:3000, enter your `@uga.edu` email, and type the code from the email.
+### How sign-in works now
+
+- **Returning students** sign in on `/signin` with their @uga.edu email and a password.
+- **New students** tap **Create your account**. We email them a code to prove they own the @uga.edu inbox, then they choose a name and a password on `/welcome`. The emailed code is the only way to create an account.
+- **Forgot password?** emails a code too. After the code, the student picks a new password on `/set-password?reset=1`.
+- Students who joined before passwords existed are sent to `/set-password` the next time they sign in with a code. Anyone can change their password from **Change password** on the home page.
+
+### Run the migration
+
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0002_passwords.sql`, and click **Run**. It adds:
+
+- `has_password()`, which the app calls after a code sign-in to decide whether to ask for a password.
+- A trigger that clears any password at the moment an account's email is first verified. Supabase gives code-created accounts a random password nobody knows, and this makes them truly passwordless until the student picks one. It also stops someone from registering another student's address with their own password before that student joins: the real student's code verification wipes it.
+- A **one-time** fix that clears the random passwords on accounts that already exist. Only run the file once, before any student has set a real password. Running it again later would erase everyone's passwords.
+
+If the migration hasn't been run, the app still works, but it won't send pre-password students to `/set-password` (it assumes they already have one rather than looping).
+
+### Dashboard settings
+
+Open **Authentication → Sign In / Providers → Email**:
+
+- Set **Minimum password length** to **8**, the same as the app.
+- Keep **Confirm email** on. It's what makes the code prove inbox ownership.
+- **Secure password change:** when on, Supabase only lets a student change their password if they signed in recently (about the last 24 hours). Otherwise it returns `reauthentication_needed`, and the app says "For security, sign in with a code again to set your password." Either setting works with DawgShop; on is safer.
+- **Leaked password protection** (checks passwords against known breaches) is a paid-plan feature. It's optional for the prototype.
+
+## 8. Try it
+
+Run `npm run dev`, open http://localhost:3000, tap **Create your account**, enter your `@uga.edu` email, type the code from the email, then fill in your name and password. Sign out, and sign back in with your email and password.

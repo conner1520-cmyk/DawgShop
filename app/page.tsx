@@ -1,10 +1,16 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getProfile, getSignedInUser } from "@/lib/auth";
 import { signOut } from "./actions";
 
+// One-line success messages, shown from /?notice=<key>.
+const NOTICES: Record<string, string> = {
+  password_saved: "Password saved.",
+};
+
 // Signed-in home. A placeholder until listings land in #5.
-export default function HomePage() {
+export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
     <Suspense
       fallback={
@@ -15,17 +21,19 @@ export default function HomePage() {
         </header>
       }
     >
-      <Home />
+      <Home searchParams={searchParams} />
     </Suspense>
   );
 }
 
 // Reads the session cookie, so it renders per request behind Suspense.
-async function Home() {
+async function Home({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const session = await getSignedInUser();
   if (!session) redirect("/signin");
   const profile = await getProfile(session.supabase, session.user.id);
   if (!profile) redirect("/welcome");
+  const { notice } = await searchParams;
+  const noticeText = typeof notice === "string" && Object.hasOwn(NOTICES, notice) ? NOTICES[notice] : undefined;
 
   return (
     <>
@@ -35,6 +43,11 @@ async function Home() {
           <span className="meta">Hi, {profile.name}</span>
         </div>
       </header>
+      {noticeText && (
+        <p className="notice" role="status">
+          {noticeText}
+        </p>
+      )}
       <div className="empty">
         <h2>Listings are coming soon</h2>
         <p>Soon you&apos;ll be able to browse and post furniture, textbooks, and dorm gear from other UGA students.</p>
@@ -55,6 +68,9 @@ async function Home() {
             Sign out
           </button>
         </form>
+        <Link href="/set-password" className="linkbtn">
+          Change password
+        </Link>
       </div>
     </>
   );

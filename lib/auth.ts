@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isUgaEmail } from "@/lib/uga";
 
@@ -13,6 +14,10 @@ export type Profile = {
 // isn't connected. Call this inside every page and Server Action that needs a
 // user; don't rely on proxy.ts alone.
 export async function getSignedInUser() {
+  // Who's signed in is different on every request. Saying so up front stops
+  // Next.js from trying to prerender this, which otherwise trips on the
+  // Date.now() that Supabase uses to check whether the session has expired.
+  await connection();
   const supabase = await createClient();
   if (!supabase) return null;
   const {

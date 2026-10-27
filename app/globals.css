@@ -99,3 +99,22 @@ textarea.in{min-height:96px;resize:vertical}
 .linkbtn:disabled{color:var(--muted);text-decoration:none;cursor:not-allowed}
 
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* password field: Show/Hide button sits inside the input on the right */
+.pw{position:relative}
+.pw .in{padding-right:72px}
+.pw-toggle{position:absolute;top:0;right:0;height:100%;min-width:64px;padding:0 14px;background:none;border:0;border-radius:0 11px 11px 0;
+  color:var(--ink);font-weight:600;font-size:13.5px;text-decoration:underline;cursor:pointer}
+.pw-strength{font-size:13px;color:var(--muted);margin-top:6px}
+.pw-strength.weak b{color:var(--red)}
+.pw-strength.ok b{color:var(--ink)}
+.pw-strength.strong b{color:var(--hedge)}
+.forgot{display:flex;justify-content:flex-end;margin-top:10px}
+.forgot .linkbtn{font-size:14px;min-height:32px}
+
+/* "or" line between Sign in and Create your account */
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:13px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* one-line success message, e.g. "Password saved." */
+.notice{margin:12px 16px 0;padding:10px 13px;border-radius:11px;background:var(--hedge-soft);color:var(--hedge);font-weight:600;font-size:14px}
