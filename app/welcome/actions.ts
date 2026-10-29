@@ -43,13 +43,17 @@ export async function saveProfile(_prev: WelcomeState, formData: FormData): Prom
     return pwError.code === "weak_password" ? { errors: { password: message } } : { errors: { form: message } };
   }
 
-  const { error } = await session.supabase.from("profiles").upsert({
+  // A plain insert, not an upsert: /welcome only runs for students without a
+  // profile, and since 0003 students can't read profiles.email, which an
+  // upsert ("insert or update") needs. 23505 means the row already exists
+  // (e.g. a double-tap saved it a moment ago), so treat it as done.
+  const { error } = await session.supabase.from("profiles").insert({
     id: session.user.id,
     email: session.email,
     name,
     pickup_area: area || null,
   });
-  if (error) {
+  if (error && error.code !== "23505") {
     console.error("profile save failed:", error.code, error.message);
     return { errors: { form: "We couldn't save your profile. Try again in a minute." } };
   }

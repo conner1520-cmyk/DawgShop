@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Public_Sans } from "next/font/google";
+import { Suspense } from "react";
+import { TabBar } from "@/components/tab-bar";
 import "./globals.css";
 
 // Body text. globals.css reads this through --font-public-sans.
@@ -36,6 +38,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <div id="app" className="notabs">
           <main id="view">{children}</main>
+          {/* The tab bar reads the URL, which isn't known ahead of time on
+              pages like /listings/[id], so it streams in behind Suspense. */}
+          <Suspense fallback={null}>
+            <TabBar />
+          </Suspense>
         </div>
       </body>
     </html>

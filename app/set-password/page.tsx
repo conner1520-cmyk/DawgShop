@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Password - DawgShop" };
 // Set or change your password. Reached from:
 //   - a code sign-in by a student who has no password yet (/set-password)
 //   - "Forgot password?" after the code is verified (/set-password?reset=1)
-//   - "Change password" on the home page
+//   - "Change password" on the Me page (/me)
 // Signed-out visitors are sent to /signin by proxy.ts (and again below).
 export default function SetPasswordPage({ searchParams }: PageProps<"/set-password">) {
   return (

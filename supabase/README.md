@@ -22,7 +22,7 @@ the Supabase dashboard. Never commit them, and never paste them into a chat
 
 ## 2. Create the tables
 
-Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`. Then run `0002_passwords.sql` the same way (see step 7).
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`. Then run `0002_passwords.sql` the same way (see step 7), and `0003_listings.sql` (see step 8).
 
 ## 3. URLs
 
@@ -97,7 +97,7 @@ Limits to know:
 - **Returning students** sign in on `/signin` with their @uga.edu email and a password.
 - **New students** tap **Create your account**. We email them a code to prove they own the @uga.edu inbox, then they choose a name and a password on `/welcome`. The emailed code is the only way to create an account.
 - **Forgot password?** emails a code too. After the code, the student picks a new password on `/set-password?reset=1`.
-- Students who joined before passwords existed are sent to `/set-password` the next time they sign in with a code. Anyone can change their password from **Change password** on the home page.
+- Students who joined before passwords existed are sent to `/set-password` the next time they sign in with a code. Anyone can change their password from **Change password** on the **Me** tab (`/me`).
 
 ### Run the migration
 
@@ -118,6 +118,34 @@ Open **Authentication → Sign In / Providers → Email**:
 - **Secure password change:** when on, Supabase only lets a student change their password if they signed in recently (about the last 24 hours). Otherwise it returns `reauthentication_needed`, and the app says "For security, sign in with a code again to set your password." Either setting works with DawgShop; on is safer.
 - **Leaked password protection** (checks passwords against known breaches) is a paid-plan feature. It's optional for the prototype.
 
-## 8. Try it
+## 8. Listings
+
+Selling (#4), browsing (#5), and managing your listings (#7) need one more migration.
+
+### Run the migration
+
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0003_listings.sql`, and click **Run**. Run it once, after 0001 and 0002. It creates:
+
+- The `listings` table, with database checks that repeat the app's rules (price 0-10,000 in whole dollars, 1 to 5 photos, known categories and conditions, status `active`, `sold`, or `hidden`).
+- Row Level Security rules for listings.
+- A **private** Storage bucket named `listing-photos` (5 MB per file, JPEG/PNG/WebP), plus its rules. You don't need to create the bucket by hand. Check it appears under **Storage** afterwards.
+- New read rules for `profiles`, so a listing can show the seller's name.
+- Realtime for the `listings` table, so Browse and Move-in update live.
+
+### Confirm Realtime is on
+
+Open **Database → Publications**, click `supabase_realtime`, and check that `listings` is turned on. The migration adds it, but if it's off, turn it on here. Without it the app still works; students just need to refresh to see new listings.
+
+### What students can and can't see
+
+- **Signed out:** nothing. No listings, profiles, or photos.
+- **Listings:** any signed-in student sees every **active** listing, plus all of their own, including sold and unlisted ones (on the Me tab). A listing marked sold or unlisted disappears from everyone else right away.
+- **Changing listings:** only the seller can post, edit, mark sold, unlist, relist, or delete a listing. You can't post a listing as someone else.
+- **Profiles:** signed-in students can read each other's name, pickup spot, and join date. They can **never** read another student's email (not even their own through the API; the app shows your email from your sign-in session instead).
+- **Photos:** any signed-in student can view listing photos, through links that expire after an hour. A student can only upload, replace, or delete photos inside their own folder (`<their user id>/...`).
+
+## 9. Try it
 
 Run `npm run dev`, open http://localhost:3000, tap **Create your account**, enter your `@uga.edu` email, type the code from the email, then fill in your name and password. Sign out, and sign back in with your email and password.
+
+After running 0003, tap **Sell**, add a photo, and post a listing. It should show up on **Browse**, and on the **Me** tab with Edit, Mark sold, Unlist, and Delete.

@@ -2,9 +2,12 @@ import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isUgaEmail } from "@/lib/uga";
 
+// A student's profile. The email column is NOT here on purpose: since
+// 0003_listings.sql, students can read each other's names but never emails,
+// so the app can't select profiles.email at all. Use the session's email
+// (getSignedInUser().email) for the signed-in student instead.
 export type Profile = {
   id: string;
-  email: string;
   name: string;
   pickup_area: string | null;
 };
@@ -33,7 +36,7 @@ export async function getProfile(
 ): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, name, pickup_area")
+    .select("id, name, pickup_area")
     .eq("id", userId)
     .maybeSingle();
   if (error) console.error("profile lookup failed:", error.message);
