@@ -22,7 +22,7 @@ the Supabase dashboard. Never commit them, and never paste them into a chat
 
 ## 2. Create the tables
 
-Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`. Then run `0002_passwords.sql` the same way (see step 7), and `0003_listings.sql` (see step 8).
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0001_profiles.sql`, and click **Run**. This creates the `profiles` table, its security rules, and a trigger that blocks any email that isn't `@uga.edu`. Then run `0002_passwords.sql` the same way (see step 7), `0003_listings.sql` (see step 8), and `0004_messaging.sql` (see step 9).
 
 ## 3. URLs
 
@@ -144,8 +144,40 @@ Open **Database → Publications**, click `supabase_realtime`, and check that `l
 - **Profiles:** signed-in students can read each other's name, pickup spot, and join date. They can **never** read another student's email (not even their own through the API; the app shows your email from your sign-in session instead).
 - **Photos:** any signed-in student can view listing photos, through links that expire after an hour. A student can only upload, replace, or delete photos inside their own folder (`<their user id>/...`).
 
-## 9. Try it
+## 9. Messaging
+
+Buyer-seller messaging (#6) needs one more migration. A buyer taps **Message seller** (or **Ask to claim it** on a free item) on a listing, and the two students work out the price and a meetup spot in plain messages. Nothing in a chat changes the listing; the seller still marks it sold from the **Me** tab.
+
+### Run the migration
+
+Open **SQL Editor → New query**, paste all of `supabase/migrations/0004_messaging.sql`, and click **Run**. Run it once, after 0003. It creates:
+
+- The `conversations` table: one chat per buyer per listing, with a copy of the listing's title and cover photo so the chat still makes sense after the listing is sold, unlisted, or deleted.
+- The `messages` table: plain text, 1 to 2,000 characters, no editing or deleting.
+- Row Level Security rules for both tables.
+- Functions the app calls: `start_conversation` (open or reopen a chat), `mark_conversation_read`, and `unread_conversation_count` (the red dot on the **Messages** tab), plus a trigger that keeps each chat's last-message preview current.
+- Realtime for `messages` and `conversations`, so new messages appear without refreshing.
+
+### Confirm Realtime is on
+
+Open **Database → Publications**, click `supabase_realtime`, and check that **`listings`, `messages`, and `conversations`** are all turned on. The migrations add them, but if one is off, turn it on here. Without Realtime the app still works; students just need to refresh to see new messages.
+
+### What students can and can't see
+
+- **Signed out:** nothing.
+- **Chats:** a student only ever sees chats they're in, as the buyer or the seller. Nobody can read anyone else's messages, through the app or the API. Realtime follows the same rule, so new messages are only pushed to the two people in that chat.
+- **Starting a chat:** only on an active listing, and never on your own. The seller is always taken from the listing, not from what the browser sends.
+- **Sending:** only as yourself, and only into your own chats. Messages can't be edited or deleted.
+- **Names, not emails:** chats show the other student's name from their profile. Emails stay hidden, same as in step 8.
+
+### No notifications yet
+
+There are no email or push notifications. A student sees new messages in the app only: a red dot on the **Messages** tab and bold rows in the inbox.
+
+## 10. Try it
 
 Run `npm run dev`, open http://localhost:3000, tap **Create your account**, enter your `@uga.edu` email, type the code from the email, then fill in your name and password. Sign out, and sign back in with your email and password.
 
 After running 0003, tap **Sell**, add a photo, and post a listing. It should show up on **Browse**, and on the **Me** tab with Edit, Mark sold, Unlist, and Delete.
+
+After running 0004, sign in as a second student in another browser (or a private window), open the first student's listing, and tap **Message seller**. Send a message; it should appear on the other screen within a second or two, with a red dot on the seller's **Messages** tab.

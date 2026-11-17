@@ -63,3 +63,19 @@ export function CloseIcon() {
     </svg>
   );
 }
+
+export function MessageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 5.5h16v10H9l-5 4Z" />
+    </svg>
+  );
+}
+
+export function SendIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 12 20 4l-6 16-2.5-6.5Z" />
+    </svg>
+  );
+}

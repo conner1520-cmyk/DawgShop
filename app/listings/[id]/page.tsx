@@ -7,6 +7,7 @@ import { LISTING_SELECT, photoUrls, type ListingRow } from "@/lib/listing-data";
 import { ago, fmt, future, isUuid, tileClass } from "@/lib/listings";
 import { BackButton } from "@/components/back-button";
 import { PriceTag } from "@/components/listing-card";
+import { MessageSellerButton } from "@/components/message-seller-button";
 import { OwnerActions } from "@/components/owner-actions";
 import { PhotoCarousel } from "@/components/photo-carousel";
 
@@ -123,12 +124,8 @@ async function ListingView({
       {mine ? (
         <OwnerActions id={l.id} title={l.title} status={l.status} variant="detail" />
       ) : (
-        <div className="actions">
-          {/* Messaging and offers arrive with #6. */}
-          <button type="button" className="btn secondary" disabled>
-            Messaging coming soon
-          </button>
-        </div>
+        // Other students only ever see active listings (RLS), but check anyway.
+        l.status === "active" && <MessageSellerButton listingId={l.id} free={l.price === 0} />
       )}
     </>
   );

@@ -13,7 +13,7 @@ export type ListingRow = Listing & { seller: { name: string } | null };
 // last an hour, plenty for one page view (the page re-signs on each render).
 const SIGNED_URL_SECONDS = 3600;
 
-async function signPaths(supabase: SupabaseClient, paths: string[]) {
+export async function signPaths(supabase: SupabaseClient, paths: string[]) {
   const urls = new Map<string, string>();
   const unique = [...new Set(paths)];
   if (!unique.length) return urls;
