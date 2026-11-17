@@ -1,6 +1,6 @@
 # Demo Day kit
 
-Demo Day is Tuesday, November 17, 1:15–2:35 p.m., in Studio 225. Live app: https://dawg-shop-rak3.vercel.app
+Demo Day is Tuesday, November 17, 1:15–2:35 p.m., in Studio 225. Live app: https://dawgshop-entr5000.vercel.app
 
 ## Tonight's checklist
 
@@ -22,7 +22,7 @@ Demo Day is Tuesday, November 17, 1:15–2:35 p.m., in Studio 225. Live app: htt
 >
 > **[1:05, proof]** It's live right now. I built and deployed it in about six weeks using AI coding agents, and I'm not a developer.
 >
-> **[1:15, ask]** Next up are in-app messaging and AI that writes your listing from a photo. Come to my table, sign up with your UGA email, and post the first thing you want to get rid of.
+> **[1:15, ask]** When you find something, you message the seller right in the app. Next up is AI that writes your listing from a photo. Come to my table, sign up with your UGA email, and post the first thing you want to get rid of.
 
 ## Table demo: 3-minute walkthrough
 
@@ -31,8 +31,9 @@ Demo Day is Tuesday, November 17, 1:15–2:35 p.m., in Studio 225. Live app: htt
 3. **A listing**: swipe through the photos and point out the seller's name and pickup spot. The email is never shown.
 4. **Move-in tab**: listings grouped by month.
 5. **Sell**: walk through posting (you can stop before posting, or post and then delete it).
-6. **Me tab**: Edit, Mark sold, Unlist. Mark one sold and show it disappear from Browse.
-7. **Hand them your phone**, or have them sign up on theirs if they have a @uga.edu email.
+6. **Messages**: tap "Message seller" on a friend's listing and show the chat (have a conversation started ahead of time).
+7. **Me tab**: Edit, Mark sold, Unlist. Mark one sold and show it disappear from Browse.
+8. **Hand them your phone**, or have them sign up on theirs if they have a @uga.edu email.
 
 **Likely questions:**
 - *Why not just use Facebook?* Verified students only, dorm-based pickup and move-in timing. Facebook can't do any of the three.
@@ -53,7 +54,7 @@ Record the screen on your phone (Control Center → Screen Recording) or on your
 | 0:25–0:38 | Browse, search, filter by dorm | "Browse what's for sale near you, and filter by your dorm, not a map." |
 | 0:38–0:48 | Posting a listing with photos | "Sell something in under a minute: snap photos, set a price, pick a spot." |
 | 0:48–0:56 | Move-in tab | "And list your stuff now for the freshmen who move in next fall." |
-| 0:56–1:02 | Logo and URL on screen | "DawgShop. Buy and sell with Dawgs you can trust. Live now at dawg-shop-rak3.vercel.app." |
+| 0:56–1:02 | Logo and URL on screen | "DawgShop. Buy and sell with Dawgs you can trust. Live now at dawgshop-entr5000.vercel.app." |
 
 Upload it to YouTube as **Unlisted**, then replace "_demo video link coming soon_" near the top of the README with the link.
 
