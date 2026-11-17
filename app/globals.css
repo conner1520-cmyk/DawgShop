@@ -97,6 +97,8 @@ textarea.in{min-height:96px;resize:vertical}
 /* Sign-in code (6-10 digits): big and spaced out so it is easy to check */
 .in.code{font-size:26px;font-weight:600;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums;padding-left:calc(13px + .4em)}
 .in.code::placeholder{color:var(--muted);opacity:.45}
+.about-list{margin:0 0 28px;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
+.proto a{color:inherit}
 .signin-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:18px}
 .linkbtn:disabled{color:var(--muted);text-decoration:none;cursor:not-allowed}
 

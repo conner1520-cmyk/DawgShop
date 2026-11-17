@@ -7,7 +7,7 @@ import { BrowseIcon, MeIcon, MoveInIcon, PlusIcon } from "@/components/icons";
 type Tab = "browse" | "movein" | "sell" | "me";
 
 // Screens without the tab bar: signing in and account setup.
-const NO_TABS = ["/signin", "/welcome", "/set-password", "/auth"];
+const NO_TABS = ["/about", "/signin", "/welcome", "/set-password", "/auth"];
 
 function currentTab(pathname: string): Tab | null {
   if (pathname === "/move-in") return "movein";
