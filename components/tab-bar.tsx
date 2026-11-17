@@ -10,7 +10,7 @@ import { useConversationChanges } from "@/components/messages-live";
 type Tab = "browse" | "movein" | "sell" | "messages" | "me";
 
 // Screens without the tab bar: signing in and account setup.
-const NO_TABS = ["/signin", "/welcome", "/set-password", "/auth"];
+const NO_TABS = ["/about", "/signin", "/welcome", "/set-password", "/auth"];
 
 // A chat (/messages/<id>) hides the tab bar too, like the prototype: the
 // message box sits where the tabs would be.

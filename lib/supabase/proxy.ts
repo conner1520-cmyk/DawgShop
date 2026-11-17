@@ -4,7 +4,7 @@ import { getSupabaseEnv } from "./env";
 
 // Pages anyone can open without signing in.
 function isPublicPath(pathname: string) {
-  return pathname === "/signin" || pathname.startsWith("/auth/");
+  return pathname === "/signin" || pathname === "/about" || pathname.startsWith("/auth/");
 }
 
 // Copy any refreshed auth cookies onto a redirect so the session isn't lost.
@@ -64,7 +64,8 @@ export async function updateSession(request: NextRequest) {
   const signedIn = Boolean(data?.claims);
 
   if (!signedIn && !isPublicPath(pathname)) {
-    return redirectTo(request, "/signin", response);
+    // The home page explains DawgShop first; other pages go straight to sign-in.
+    return redirectTo(request, pathname === "/" ? "/about" : "/signin", response);
   }
   if (signedIn && pathname === "/signin") {
     return redirectTo(request, "/", response);

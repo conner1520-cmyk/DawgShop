@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import {
   CODE_FORMAT_ERROR,
@@ -340,6 +341,10 @@ export function SigninForm({ configured, linkError }: Props) {
       <button type="button" className="btn secondary block" onClick={() => startCodeFlow("signup")}>
         New to DawgShop? Create your account
       </button>
+      <p className="proto">
+        Make a new password just for DawgShop. Never enter your UGA MyID password here. DawgShop is
+        a student project and is not affiliated with UGA. <Link href="/about">About DawgShop</Link>
+      </p>
       {notConnected}
     </form>
   );
