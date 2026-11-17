@@ -2,7 +2,7 @@
 
 **A marketplace for UGA students only.** Sign in with your @uga.edu email, then buy and sell with other verified students, including move-out stuff listed now for move-in later.
 
-**Try it:** [dawg-shop-rak3.vercel.app](https://dawg-shop-rak3.vercel.app) (needs a @uga.edu email)
+**Try it:** [dawgshop-entr5000.vercel.app](https://dawgshop-entr5000.vercel.app) (needs a @uga.edu email)
 **Watch:** _demo video link coming soon_
 
 Final project for ENTR 5000 (AI in Entrepreneurship), Fall 2026, by Conner Graham.
@@ -35,10 +35,11 @@ DawgShop is a working web app, built mobile-first so it feels like a phone app, 
 3. **List now, hand off later.** The **move-in** feature lets a seller set an "available from" date. A senior can list a couch in May for a freshman arriving in August, and the Move-in tab groups these listings by month.
 4. **Browse and filter by campus spot.** A two-column feed of everything for sale, newest first, with keyword search (course numbers work for textbooks), category chips and filters for pickup spot, maximum price and sort order. It updates live as listings are posted or sold.
 5. **Manage your listings.** Edit, mark sold, unlist, relist or delete. Sold items disappear from everyone else's feed right away.
+6. **Message the seller.** Tap "Message seller" on any listing to start a chat tied to that item. Chats are saved, update live and show an unread dot on the Messages tab. Only the buyer and seller can read them.
 
 **How it's built:** Next.js 16 (React) on Vercel, with Supabase for sign-in, the Postgres database and photo storage. Privacy rules live in the database: students can see each other's name and pickup spot but never another student's email, and only a seller can change their own listings. Photos sit in private storage and are shown through links that expire after an hour.
 
-**How I built it:** I'm not a professional developer. I built DawgShop with Claude Code as my engineering partner. I set up specialized AI agents for the project, one to build and test the app and one to manage GitHub issues and commits, and I tracked every feature as a GitHub issue with goals, open questions and progress notes. The project went from a clickable HTML mockup (October 15) to real sign-in (October 20–27), then to the full marketplace (October 29), then to a live deployment (November 6).
+**How I built it:** I'm not a professional developer. I built DawgShop with Claude Code as my engineering partner. I set up specialized AI agents for the project, one to build and test the app and one to manage GitHub issues and commits, and I tracked every feature as a GitHub issue with goals, open questions and progress notes. The project went from a clickable HTML mockup (October 15) to real sign-in (October 20–27), then to the full marketplace (October 29), a live deployment (November 6) and buyer–seller messaging (November 16).
 
 ## The learning
 
@@ -48,16 +49,15 @@ DawgShop is a working web app, built mobile-first so it feels like a phone app, 
 
 **Trust is the product.** The @uga.edu restriction isn't a sign-up detail; it's the whole reason to use DawgShop instead of Facebook. That's why I enforced it in three separate places rather than one.
 
-**Scope is a decision, not a failure.** I planned messaging, offers and AI-written listings from a photo. I chose to finish a complete, trustworthy loop of signing up, selling, browsing and managing listings, and to deploy it, before adding more. A smaller app that really works beats a bigger one that half works.
+**Scope is a decision, not a failure.** I planned offers, counteroffers and AI-written listings from a photo. I chose to finish a complete, trustworthy loop first: signing up, selling, browsing, managing listings and messaging. For messaging I deliberately chose plain chat over offer cards and accept/decline buttons, so students negotiate in their own words. A smaller app that really works beats a bigger one that half works.
 
 **AI changes who can build.** Using AI agents, one non-engineer built and shipped a real, secure, full-stack app in about six weeks. The bottleneck moved from writing code to deciding what to build and checking that it actually works.
 
 ## The next step
 
-1. **Messaging and offers.** Today buyers and sellers arrange meetups outside the app. Next is in-app chat tied to each listing, with a Make Offer button.
-2. **AI listing drafts.** Snap a photo, and AI drafts the title, category, description and a suggested price.
-3. **Solve the empty-marketplace problem.** Launch in one dorm or club first, seed it with my own and friends' listings, and time the launch to December and May move-outs when students most need to sell fast.
-4. **A business model.** Options I'm weighing: featured listings, ads from Athens businesses that want to reach students (movers, storage, furniture), and summer storage for move-out items. Any of these has to stay small enough that students still trust the app more than the free Facebook group.
+1. **AI listing drafts.** Snap a photo, and AI drafts the title, category, description and a suggested price.
+2. **Solve the empty-marketplace problem.** Launch in one dorm or club first, seed it with my own and friends' listings, and time the launch to December and May move-outs when students most need to sell fast.
+3. **A business model.** Options I'm weighing: featured listings, ads from Athens businesses that want to reach students (movers, storage, furniture), and summer storage for move-out items. Any of these has to stay small enough that students still trust the app more than the free Facebook group.
 
 ---
 
